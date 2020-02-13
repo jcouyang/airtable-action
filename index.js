@@ -1,18 +1,27 @@
 const core = require('@actions/core');
-const wait = require('./wait');
+const Airtable = require('airtable');
+const r = require('ramda');
 
-
-// most @actions toolkit packages have async methods
 async function run() {
-  try { 
-    const ms = core.getInput('milliseconds');
-    console.log(`Waiting ${ms} milliseconds ...`)
+  try {
+    const airtableToken = core.getInput('airtable-token')
+    const airtableBase = core.getInput('airtable-base')
+    const airtableSheet = core.getInput('airtable-sheet')
+    const airtablePicks = JSON.parse(core.getInput('airtable-picks') || '[["url"], ["title"], ["created_at"], ["merged_at"], ["labels"], ["comments"], ["review_comments"], ["commits"], ["additions"], ["deletions"], ["changed_files"]]')
 
-    core.debug((new Date()).toTimeString())
-    wait(parseInt(ms));
-    core.debug((new Date()).toTimeString())
+    const now = new Date()
+    const base = new Airtable({apiKey: airtableToken}).base(airtableBase);
+    const picks = r.paths(airtablePicks, sample)
 
-    core.setOutput('time', new Date().toTimeString());
+    const paths = r.map(p => p.join('.'), airtablePicks)
+
+    base(airtableSheet).create(r.zipObj(paths, picks), {typecast: true}, function(err, record) {
+      if (err) {
+        core.setFailed(err.message);
+      } else {
+        core.setOutput('id', record.getId());
+      }
+    })
   } 
   catch (error) {
     core.setFailed(error.message);
