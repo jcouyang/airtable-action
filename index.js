@@ -1,4 +1,5 @@
 const core = require('@actions/core');
+const github = require('@actions/github');
 const Airtable = require('airtable');
 const r = require('ramda');
 
@@ -11,7 +12,7 @@ async function run() {
 
     const now = new Date()
     const base = new Airtable({apiKey: airtableToken}).base(airtableBase);
-    const picks = r.paths(airtablePicks, sample)
+    const picks = r.paths(airtablePicks, github.context.payload.pull_request)
 
     const paths = r.map(p => p.join('.'), airtablePicks)
 
