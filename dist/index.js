@@ -729,10 +729,10 @@ async function run() {
 
     const paths = r.map(p => p.join('.'), airtablePicks)
     const payload = r.zipObj(paths, picks)
+    core.debug(payload);
     base(airtableSheet).create(payload, {typecast: true}, function(err, record) {
       if (err) {
-        core.debug(payload);
-        core.setFailed(err.message);
+        core.setFailed(err.message + JSON.stringify(payload));
       } else {
         core.setOutput('id', record.getId());
       }
