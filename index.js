@@ -15,11 +15,12 @@ async function run() {
     const picks = r.paths(airtablePicks, github.context.payload.pull_request)
 
     const paths = r.map(p => p.join('.'), airtablePicks)
-
-    base(airtableSheet).create(r.zipObj(paths, picks), {typecast: true}, function(err, record) {
+    const payload = r.zipObj(paths, picks)
+    base(airtableSheet).create(payload, {typecast: true}, function(err, record) {
       if (err) {
         core.setFailed(err.message);
       } else {
+        core.debug(payload)
         core.setOutput('id', record.getId());
       }
     })
