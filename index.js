@@ -18,9 +18,9 @@ async function run() {
     const payload = r.zipObj(paths, picks)
     base(airtableSheet).create(payload, {typecast: true}, function(err, record) {
       if (err) {
+        core.debug(payload);
         core.setFailed(err.message);
       } else {
-        core.debug(payload)
         core.setOutput('id', record.getId());
       }
     })
