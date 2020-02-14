@@ -5,6 +5,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v1
     - uses: ./
       with:
         airtable-token: ${{ secrets.AIRTABLE_TOKEN }}
